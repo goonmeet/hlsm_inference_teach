@@ -1,0 +1,20 @@
+{
+  "@include": [
+    "teach/env"
+  ],
+
+  "Setup": {
+    "env": "Teach",
+    "env_setup": {
+      "reference_segmentation": true,
+      "reference_depth": true,
+      "reference_inventory": true,
+      "reference_pose": true
+    },
+
+    "agent_type": "teach_demo_replay_agent",
+    "agent_setup": {}
+  },
+
+  "Hyperparams": {}
+}
