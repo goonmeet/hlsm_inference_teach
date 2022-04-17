@@ -57,10 +57,10 @@ For later: reduce the dataset redundancy between  ../teach-dataset and ../hlsm_f
 ### Running without docker
 
 #### Inference
-source init.sh
-source env_setup.sh
-source venv/teach-hlsm/bin/activate
-bash hlsm_teach_without_docker.sh
+`source init.sh`
+`source env_setup.sh`
+`source venv/teach-hlsm/bin/activate`
+`bash hlsm_teach_without_docker.sh`
 
 The evaluation metrics will be in `$HOST_OUTPUT_DIR/$SUBMISSION_PK/metrics_file`.
 Images for each episode will be in `$HOST_IMAGES_DIR/$SUBMISSION_PK`.
