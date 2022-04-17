@@ -49,17 +49,24 @@ Exit the `tmux` session (`CTRL+B, D`). Any other commands should be run in the m
 
 ## Data Setup
 Download Teach Data
+
 Get Teach Data that is formatted for Alfred from Vardaan
+
 For this setup the dataset directory is outside of this directory (i.e, ../teach-dataset)
+
 For this setup the dataset directory is outside of this directory (i.e, ../hlsm_formatted_edh_format)
+
 For later: reduce the dataset redundancy between  ../teach-dataset and ../hlsm_formatted_edh_format
 
 ### Running without docker
 
 #### Inference
 `source init.sh`
+
 `source env_setup.sh`
+
 `source venv/teach-hlsm/bin/activate`
+
 `bash hlsm_teach_without_docker.sh`
 
 The evaluation metrics will be in `$HOST_OUTPUT_DIR/$SUBMISSION_PK/metrics_file`.
