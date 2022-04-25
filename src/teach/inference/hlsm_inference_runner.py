@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from os.path import isdir
 from pathlib import Path
 from typing import List, Type
-
+from tqdm import tqdm
 from PIL import Image
 
 from teach.dataset.definitions import Definitions
@@ -28,7 +28,7 @@ from teach.utils import (
     save_dict_as_json,
     with_retry,
 )
-
+global pbar
 definitions = Definitions(version="2.0")
 action_id_to_info = definitions.map_actions_id2info
 logger = create_logger(__name__)
@@ -92,20 +92,23 @@ class InferenceRunner:
 
         processes = []
         ers = []
-        try:
-            for process_index in range(config.num_processes):
-                er = EpisodeReplay("thor", ["ego", "allo", "targetobject"])
-                ers.append(er)
-                process = InferenceRunner._launch_process(process_index, edh_instance_files, config, er)
-                #ForkedPdb().set_trace()
-                processes.append(process)
-        finally:
-            InferenceRunner._join_processes(processes)
-            for er in ers:
-                er.simulator.shutdown_simulator()
+        #ForkedPdb().set_trace()
+        global pbar
+        with tqdm(total=len(edh_instance_files)) as pbar:
+            try:
+                for process_index in range(config.num_processes):
+                    er = EpisodeReplay("thor", ["ego", "allo", "targetobject"])
+                    ers.append(er)
+                    process = InferenceRunner._launch_process(process_index, edh_instance_files, config, er)
+                    #ForkedPdb().set_trace()
+                    processes.append(process)
+            finally:
+                InferenceRunner._join_processes(processes)
+                for er in ers:
+                    er.simulator.shutdown_simulator()
 
     @staticmethod
-    def _launch_process(process_index, edh_instance_files, config: InferenceRunnerConfig, er: EpisodeReplay):
+    def _launch_process(process_index, edh_instance_files, config: InferenceRunnerConfig, er: EpisodeReplay,):
         num_files = len(edh_instance_files)
         #num_files = 1
 
@@ -130,23 +133,25 @@ class InferenceRunner:
         return process
 
     @staticmethod
-    def _run(process_index, files_to_process, config: InferenceRunnerConfig, er: EpisodeReplay):
+    def _run(process_index, files_to_process, config: InferenceRunnerConfig, er: EpisodeReplay,):
         metrics_file = InferenceRunner._get_metrics_file_name_for_process(process_index, config.metrics_file)
         metrics = dict()
         model = config.model_class(process_index, config.num_processes, model_args=config.model_args)
-
+        global pbar
         for file_index, instance_file in enumerate(files_to_process):
             try:
                 instance_id, instance_metrics = InferenceRunner._run_edh_instance(instance_file, config, model, er)
                 metrics[instance_id] = instance_metrics
-                save_dict_as_json(metrics, metrics_file)
+                save_dict_as_json(metrics, metrics_file, file_type = "metrics")
 
                 logger.info(f"Instance {instance_id}, metrics: {instance_metrics}")
                 logger.info(f"Process {process_index} completed {file_index + 1} / {len(files_to_process)} instances")
             except Exception:
                 err_msg = f"exception happened for instance={instance_file}, continue with the rest"
                 logger.error(err_msg, exc_info=True)
+                # pbar.update()
                 continue
+
 
     @staticmethod
     def _load_edh_history_images(original_edh_instance, edh_instance, config: InferenceRunnerConfig):
@@ -203,7 +208,8 @@ class InferenceRunner:
             metrics["error"] = 1
             logger.error(f"Failed to start_new_edh_instance for {instance_id}", exc_info=True)
 
-
+        traj_steps_taken = 0
+        pred_actions = list()
         if model_started_success:
             prev_action = model.model.act(model.latest_observation)
             action = prev_action
@@ -224,7 +230,7 @@ class InferenceRunner:
                     # InferenceRunner._update_metrics(metrics, action, obj_relative_coord, step_success)
                     InferenceRunner._update_metrics(metrics, action, None, step_success)
                     prev_action = {"action": action.type_str(), "obj_relative_coord": None}
-                    print("prev_action", str(prev_action), "new action", action)
+                    #print("prev_action", str(prev_action), "new action", action)
                     pred_actions.append(prev_action)
                     prev_action = action
                 except Exception as e:
