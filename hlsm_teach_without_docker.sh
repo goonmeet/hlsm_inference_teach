@@ -47,9 +47,11 @@ python src/teach/cli/hlsm_inference.py \
     --depth_model_file  ./models/hlsm_edh_ckpt/hlsm_depth_model.pytorch \
     --navigation_model_file  ./models/hlsm_edh_ckpt/hlsm_gofor_navigation_model.pytorch \
     --seg_model_file  ./models/hlsm_edh_ckpt/hlsm_segmentation_model.pytorch \
-    --device cpu \
-		--experirment_def_name teach/eval/hlsm_full/eval_hlsm_valid_unseen #\
-    #--num_processes 1
+		--experirment_def_name teach/eval/hlsm_full/eval_hlsm_valid_unseen \
+		--num_processes 1 \
+    --start_file_index 10   \
+    --num_files 5
+    # --device cuda
 
 ## To speed up remove force cpu:
 ## home/ubuntu/efs/teach/src/teach/modeling/hlsm/lgp/models/teach/hlsm/transformer_modules/subgoal_history_encoder.py
