@@ -89,6 +89,12 @@ def main():
     arg_parser.add_argument(
         "--replay_timeout", type=int, default=500, help="The timeout for playing back the interactions in an episode."
     )
+    arg_parser.add_argument(
+        "--start_file_index", type=int, default=0, help="Start idx of edh_instance."
+    )
+    arg_parser.add_argument(
+        "--num_files", type=int, default=0, help="Number of files per job."
+    )
 
     start_time = datetime.now()
     args, model_args = arg_parser.parse_known_args()
@@ -103,9 +109,11 @@ def main():
             for f in os.listdir(os.path.join(args.data_dir, "edh_instances", args.split))
             if f not in finished_edh_instance_files
         ]
+        if args.num_files > 0:
+            edh_instance_files = edh_instance_files[args.start_file_index : args.start_file_index + args.num_files]
         if not edh_instance_files:
             print(
-                f"all the edh instances have been ran for input_dir={os.path.join(args.data_dir, 'edh_instances', args.split)}"
+                "all the edh instances have been ran for input_dir={}".format(os.path.join(args.data_dir, 'edh_instances', args.split))
             )
             exit(1)
 

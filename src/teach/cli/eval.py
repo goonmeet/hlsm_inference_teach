@@ -56,7 +56,8 @@ def main():
         for f in os.listdir(args.inference_output_dir)
         if re.sub("inference__", "", f) in edh_instance_files
     ]
-    pred_action_files = [re.sub("inference__", "pred_actions__", f) for f in output_files]
+    # pred_action_files = [re.sub("inference__", "pred_actions__", f) for f in output_files]
+    pred_action_files = [re.sub("", "", f) for f in output_files]
 
     edh_instance_files_missing_output = list(
         set(edh_instance_files).difference([os.path.basename(f).split("__")[1] for f in output_files])
