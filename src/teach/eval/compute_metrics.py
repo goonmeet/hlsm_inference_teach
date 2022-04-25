@@ -3,6 +3,7 @@
 
 import json
 import os
+import pdb
 
 import numpy as np
 
@@ -114,8 +115,11 @@ def aggregate_metrics(traj_stats, args):
 
 
 def load_traj_metrics(output_file, pred_actions_file, args):
+    #pdb.set_trace()
+    print(output_file)
     with open(output_file) as h:
         game_json = json.load(h)
+
     edh_instance_file = os.path.join(
         args.data_dir, "edh_instances", args.split, os.path.basename(output_file).split("__")[1]
     )
